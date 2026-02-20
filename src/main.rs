@@ -20,7 +20,7 @@ fn main() {
             trash_location
         );
     } else {
-       // println!("directory already exists: {}", trash_location);
+        // println!("directory already exists: {}", trash_location);
     }
 
     if !Path::new(&trash_info_location).exists() {
@@ -30,7 +30,7 @@ fn main() {
             trash_info_location
         );
     } else {
-       // println!("File already exists: {}", trash_info_location);
+        // println!("File already exists: {}", trash_info_location);
     }
 
     match parse_args() {
@@ -86,12 +86,16 @@ fn add_file_to_trash(filename: &str, trash_location: &str, trash_info_location: 
     }
 }
 
-fn show_file_list(trash_info_location: &str) { //TODO: Can be made prettier
+fn show_file_list(trash_info_location: &str) {
+    //TODO: Can be made prettier
     println!("NAME                  LOCATION");
     match cmd!("cat", &trash_info_location).run() {
         Ok(_) => {}
         Err(_) => {
-            eprintln!("{} couldn't get information about trashed files.", "Error:".red().bold());
+            eprintln!(
+                "{} couldn't get information about trashed files.",
+                "Error:".red().bold()
+            );
             std::process::exit(1);
         }
     }
@@ -103,7 +107,8 @@ struct Arguments {
     filename: String,
 }
 
-fn parse_args() -> Option<Arguments> { //TODO: Needs cleaning
+fn parse_args() -> Option<Arguments> {
+    //TODO: Needs cleaning
     let args: Vec<String> = env::args().skip(1).collect();
 
     if args.len() == 1 && args[0] == "help" {

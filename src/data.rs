@@ -125,7 +125,7 @@ pub fn save_file_data(filename: &str, trash_info_location: &str) {
         .open(&trash_info_location)
     {
         Ok(mut file) => match writeln!(file, "{}", data) {
-            Ok(_) => println!("Successfully appended."),
+            Ok(_) => {}
             Err(e) => println!("Write error: {e}"),
         },
         Err(e) => {
