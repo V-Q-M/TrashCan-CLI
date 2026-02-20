@@ -18,7 +18,8 @@ fn delete_file(filename: String, trash_location: String) {
     match cmd!("mv", &filename, &trash_location).run() {
         Ok(_) => {}
         Err(e) => {
-            eprintln!("Error moving file to trashcan: {e}");
+            eprintln!("{} couldn't delete '{}'.",
+                "Error:".red().bold(), &filename);
             std::process::exit(1);
         }
     }
