@@ -1,11 +1,27 @@
 use std::env;
 use text_colorizer::*;
+use duct::cmd;
 
 mod printer;
 
+
 fn main() {
+    let trash_location: String = "/home/vito/.trash".to_string();
+
     let args = parse_args();
-    println!("{:?}", args);
+
+    delete_file(args.filename, trash_location)
+    
+}
+
+fn delete_file(filename: String, trash_location: String) {
+    match cmd!("mv", &filename, &trash_location).run() {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("Error moving file to trashcan: {e}");
+            std::process::exit(1);
+        }
+    }
 }
 
 #[derive(Debug)]

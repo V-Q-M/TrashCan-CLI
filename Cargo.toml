@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 text-colorizer = "1"
 regex = "1"
+duct = "1.1.1"
