@@ -20,7 +20,7 @@ fn parse_args() -> Arguments {
     if args.len() != 2 {
         printer::print_usage();
         eprintln!(
-            "{} wrong number of arguments: expected 4, got {}.",
+            "{} wrong number of arguments: expected 2, got {}.",
             "Error:".red().bold(),
             args.len()
         );
