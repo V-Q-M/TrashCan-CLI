@@ -1,15 +1,33 @@
 use duct::cmd;
 use std::env;
+use std::path::Path;
 use std::fs;
-use std::io::Write;
 use text_colorizer::*;
 
 mod data;
 mod printer;
 
 fn main() {
-    let trash_location: String = "/home/vito/.trash".to_string();
-    let trash_info_location: String = "/home/vito/.trashinfo".to_string();
+
+    let home_dir = env::var("HOME").expect("Could not find HOME directory.");
+
+
+    let trash_location = format!("{}/.trash", home_dir);
+    let trash_info_location = format!("{}/.trashinfo", home_dir);
+
+    if !Path::new(&trash_location).exists() {
+        fs::create_dir(&trash_location).expect("Failed to create trash directory");
+        println!("Created {} directory in your HOME directory.", trash_location);
+    } else {
+        println!("directory already exists: {}", trash_location);
+    }
+
+    if !Path::new(&trash_info_location).exists() {
+        fs::File::create(&trash_info_location).expect("Failed to create trashinfo file");
+        println!("Created {} file in your HOME directory.", trash_info_location);
+    } else {
+        println!("File already exists: {}", trash_info_location);
+    }
 
     match parse_args() {
         Some(args) => match args.option.as_str() {
@@ -39,7 +57,7 @@ fn restore_file(filename: &str, trash_location: &str, trash_info_location: &str)
         Ok(_) => {
             data::remove_line_from_data(filename, trash_info_location);
         }
-        Err(e) => {
+        Err(_) => {
             eprintln!(
                 "{} couldn't restore '{}' from trash.",
                 "Error:".red().bold(),
@@ -57,7 +75,7 @@ fn delete_file(filename: &str, trash_location: &str, trash_info_location: &str) 
 
     match cmd!("mv", &filename, &trash_location).run() {
         Ok(_) => {}
-        Err(e) => {
+        Err(_) => {
             eprintln!("{} couldn't delete '{}'.", "Error:".red().bold(), &filename);
             std::process::exit(1);
         }
