@@ -17,7 +17,11 @@ fn main() {
             "add" => delete_file(&args.filename, &trash_location, &trash_info_location),
             "restore" => restore_file(&args.filename, &trash_location, &trash_info_location),
             _ => {
-                println!("{} Unknown argument '{}'","Error:".red().bold(), args.option.as_str());
+                println!(
+                    "{} Unknown argument '{}'",
+                    "Error:".red().bold(),
+                    args.option.as_str()
+                );
                 printer::print_usage()
             }
         },
@@ -32,7 +36,9 @@ fn restore_file(filename: &str, trash_location: &str, trash_info_location: &str)
     let original_location = data::get_restore_location(filename, trash_info_location);
 
     match cmd!("mv", &current_location, &original_location).run() {
-        Ok(_) => {}
+        Ok(_) => {
+            data::remove_line_from_data(filename, trash_info_location);
+        }
         Err(e) => {
             eprintln!(
                 "{} couldn't restore '{}' from trash.",
@@ -43,7 +49,6 @@ fn restore_file(filename: &str, trash_location: &str, trash_info_location: &str)
         }
     }
 
-    // TODO: remove the line from trashinfo after restoration
 }
 
 /// Moves a file into the trashcan directory

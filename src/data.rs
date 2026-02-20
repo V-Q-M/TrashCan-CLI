@@ -59,6 +59,63 @@ fn extract_restore_location_from_data(filename: &str, trash_info_location: &str)
     })
 }
 
+pub fn remove_line_from_data(filename: &str, trash_info_location: &str) {
+    // read trash trash_info
+    let data = match fs::read_to_string(trash_info_location) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!(
+                "{} failed to read from file '{}': {:?}",
+                "Error:".red().bold(),
+                trash_info_location,
+                e
+            );
+            std::process::exit(1);
+        }
+    };
+
+    let mut found = false;
+
+    let new_content: String = data
+        .lines()
+        .filter(|line| {
+            let mut parts = line.split_whitespace();
+            let name = parts.next();
+
+            if name == Some(filename) {
+                found = true;
+                false
+            } else {
+                true
+            }
+        })
+        .map(|line| format!("{line}\n"))
+        .collect();
+
+    if !found {
+        eprintln!(
+            "{} '{}' not found in '{}'",
+            "Error:".red().bold(),
+            filename,
+            trash_info_location
+        );
+        std::process::exit(1);
+    }
+
+    match fs::write(trash_info_location, new_content) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!(
+                "{} failed to write to file '{}': {:?}",
+                "Error".red().bold(),
+                trash_info_location,
+                e
+            );
+            std::process::exit(1);
+        }
+    }
+}
+
 pub fn save_file_data(filename: &str, trash_info_location: &str) {
     let file_path: String = get_file_location(&filename);
     let data: String = format!("{}  {}", filename, file_path);
