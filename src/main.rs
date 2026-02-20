@@ -36,9 +36,9 @@ fn main() {
     match parse_args() {
         Some(args) => match args.option.as_str() {
             // Add new arguments here
-            "add" => delete_file(&args.filename, &trash_location, &trash_info_location),
+            "add" => add_file_to_trash(&args.filename, &trash_location, &trash_info_location),
             "restore" => restore_file(&args.filename, &trash_location, &trash_info_location),
-            "show" => list_files(&trash_info_location),
+            "show" => show_file_list(&trash_info_location),
             _ => {
                 println!(
                     "{} Unknown argument '{}'",
@@ -74,7 +74,7 @@ fn restore_file(filename: &str, trash_location: &str, trash_info_location: &str)
 }
 
 /// Moves a file into the trashcan directory
-fn delete_file(filename: &str, trash_location: &str, trash_info_location: &str) {
+fn add_file_to_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
     data::save_file_data(&filename, &trash_info_location);
 
     match cmd!("mv", &filename, &trash_location).run() {
@@ -86,7 +86,7 @@ fn delete_file(filename: &str, trash_location: &str, trash_info_location: &str) 
     }
 }
 
-fn list_files(trash_info_location: &str) { //TODO: Can be made prettier
+fn show_file_list(trash_info_location: &str) { //TODO: Can be made prettier
     println!("NAME                  LOCATION");
     match cmd!("cat", &trash_info_location).run() {
         Ok(_) => {}
