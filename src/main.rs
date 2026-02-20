@@ -12,11 +12,34 @@ fn main() {
 
     let args = parse_args();
 
-    delete_file(&args.filename, &trash_location, &trash_info_location)
+    // TODO: add parser for options
+    
+    //delete_file(&args.filename, &trash_location, &trash_info_location)
+    restore_file(&args.filename, &trash_location)
 }
 
 /// Restores a file from the trash can directory
-fn restore_file(filename: &str) {}
+fn restore_file(filename: &str, trash_location: &str) {
+    // read file old location
+
+    let current_location = format!("{}/{}", trash_location, filename);
+    // TODO: Add function which reads the trashinfo and returns the original location of the file
+    let original_location = "/home/vito/test";
+
+    match cmd!("mv", &current_location, &original_location).run() {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!(
+                "{} couldn't restore '{}' from trash.",
+                "Error:".red().bold(),
+                &filename
+            );
+            std::process::exit(1);
+        }
+    }
+
+    // TODO: remove the line from trashinfo after restoration
+}
 
 /// Moves a file into the trashcan directory
 fn delete_file(filename: &str, trash_location: &str, trash_info_location: &str) {
@@ -47,7 +70,7 @@ fn get_file_location(filename: &str) -> String {
 
 fn save_fileinfo(filename: &str, trash_info_location: &str) {
     let file_path: String = get_file_location(&filename);
-    let data: String = format!("{}   {}", filename, file_path);
+    let data: String = format!("{}  {}", filename, file_path);
 
     match fs::OpenOptions::new()
         .create(true)
