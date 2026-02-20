@@ -4,6 +4,7 @@ use std::fs;
 use std::io::Write;
 use text_colorizer::*;
 
+mod data;
 mod printer;
 
 fn main() {
@@ -13,9 +14,11 @@ fn main() {
     let args = parse_args();
 
     // TODO: add parser for options
-    
+
     //delete_file(&args.filename, &trash_location, &trash_info_location)
-    restore_file(&args.filename, &trash_location)
+    //restore_file(&args.filename, &trash_location)
+    let test = data::get_restore_location(&args.filename, &trash_info_location);
+    println!("{}", test);
 }
 
 /// Restores a file from the trash can directory
@@ -43,46 +46,13 @@ fn restore_file(filename: &str, trash_location: &str) {
 
 /// Moves a file into the trashcan directory
 fn delete_file(filename: &str, trash_location: &str, trash_info_location: &str) {
-    save_fileinfo(&filename, &trash_info_location);
+    data::save_file_data(&filename, &trash_info_location);
 
     match cmd!("mv", &filename, &trash_location).run() {
         Ok(_) => {}
         Err(e) => {
             eprintln!("{} couldn't delete '{}'.", "Error:".red().bold(), &filename);
             std::process::exit(1);
-        }
-    }
-}
-
-use std::io;
-use std::path::Path;
-fn get_file_location(filename: &str) -> String {
-    let path = Path::new(&filename);
-
-    match path.canonicalize() {
-        Ok(abs_path) => abs_path.display().to_string(),
-        Err(e) => {
-            eprintln!("{} finding file '{}': {e}", "Error:".red().bold(), filename);
-            std::process::exit(1);
-        }
-    }
-}
-
-fn save_fileinfo(filename: &str, trash_info_location: &str) {
-    let file_path: String = get_file_location(&filename);
-    let data: String = format!("{}  {}", filename, file_path);
-
-    match fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&trash_info_location)
-    {
-        Ok(mut file) => match writeln!(file, "{}", data) {
-            Ok(_) => println!("Successfully appended."),
-            Err(e) => println!("Write error: {e}"),
-        },
-        Err(e) => {
-            eprintln!("Open error: {e}");
         }
     }
 }
