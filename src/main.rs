@@ -38,6 +38,7 @@ fn main() {
             // Add new arguments here
             "add" => add_file_to_trash(&args.filename, &trash_location, &trash_info_location),
             "restore" => restore_file(&args.filename, &trash_location, &trash_info_location),
+            "clear" => clear_trash(&args.filename, &trash_location, &trash_info_location),
             "show" => show_file_list(&trash_info_location),
             _ => {
                 println!(
@@ -96,6 +97,34 @@ fn show_file_list(trash_info_location: &str) {
                 "{} couldn't get information about trashed files.",
                 "Error:".red().bold()
             );
+            std::process::exit(1);
+        }
+    }
+}
+
+fn clear_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
+    if filename == "all" {
+        empty_trash(trash_location, trash_info_location);
+    }
+}
+
+fn empty_trash(trash_location: &str, trash_info_location: &str) {
+    let trash_path = Path::new(trash_location);
+
+    if trash_path.exists() {
+        match fs::remove_dir_all(trash_path) {
+            Ok(v) => v,
+            Err(_) => {
+                eprintln!("{} couldn't delete trashed files.", "Error:".red().bold());
+                std::process::exit(1);
+            }
+        }
+    }
+
+    match fs::File::create(trash_info_location) {
+        Ok(_) => {}
+        Err(_) => {
+            eprintln!("{} couldn't reset trash info file.", "Error:".red().bold());
             std::process::exit(1);
         }
     }
