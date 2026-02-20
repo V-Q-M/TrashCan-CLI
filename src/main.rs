@@ -15,7 +15,7 @@ fn main() {
         Some(args) => match args.option.as_str() {
             // Add new arguments here
             "add" => delete_file(&args.filename, &trash_location, &trash_info_location),
-            "restore" => restore_file(&args.filename, &trash_location),
+            "restore" => restore_file(&args.filename, &trash_location, &trash_info_location),
             _ => {
                 println!("{} Unknown argument '{}'","Error:".red().bold(), args.option.as_str());
                 printer::print_usage()
@@ -26,12 +26,10 @@ fn main() {
 }
 
 /// Restores a file from the trash can directory
-fn restore_file(filename: &str, trash_location: &str) {
+fn restore_file(filename: &str, trash_location: &str, trash_info_location: &str) {
     // read file old location
-
     let current_location = format!("{}/{}", trash_location, filename);
-    // TODO: Add function which reads the trashinfo and returns the original location of the file
-    let original_location = "/home/vito/test";
+    let original_location = data::get_restore_location(filename, trash_info_location);
 
     match cmd!("mv", &current_location, &original_location).run() {
         Ok(_) => {}
