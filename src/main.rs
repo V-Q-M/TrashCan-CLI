@@ -10,12 +10,18 @@ fn main() {
     let trash_location: String = "/home/vito/.trash".to_string();
     let trash_info_location: String = "/home/vito/.trashinfo".to_string();
 
-    let args = parse_args();
-
-    // TODO: add parser for options
-    
-    //delete_file(&args.filename, &trash_location, &trash_info_location)
-    restore_file(&args.filename, &trash_location)
+    match parse_args() {
+        Some(args) => match args.option.as_str() {
+            // Add new arguments here
+            "add" => delete_file(&args.filename, &trash_location, &trash_info_location),
+            "restore" => restore_file(&args.filename, &trash_location),
+            _ => {
+                println!("{} Unknown argument '{}'","Error:".red().bold(), args.option.as_str());
+                printer::print_usage()
+            }
+        },
+        None => {}
+    }
 }
 
 /// Restores a file from the trash can directory
@@ -93,10 +99,14 @@ struct Arguments {
     filename: String,
 }
 
-fn parse_args() -> Arguments {
+fn parse_args() -> Option<Arguments> {
     let args: Vec<String> = env::args().skip(1).collect();
 
-    if args.len() != 2 {
+    if args.len() == 1 && args[0] == "help" {
+        // TODO: add help which prints all options
+        println!("Help");
+        return None;
+    } else if args.len() != 2 {
         printer::print_usage();
         eprintln!(
             "{} wrong number of arguments: expected 2, got {}.",
@@ -106,8 +116,8 @@ fn parse_args() -> Arguments {
         std::process::exit(1);
     }
 
-    Arguments {
+    Some(Arguments {
         option: args[0].clone(),
         filename: args[1].clone(),
-    }
+    })
 }
