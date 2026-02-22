@@ -4,6 +4,25 @@ use std::path::Path;
 use text_colorizer::*;
 
 use crate::data;
+use crate::fs_utils;
+
+/// Moves a file into the trashcan directory
+pub fn add_file_to_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
+    data::save_file_data(&filename, &trash_info_location);
+
+    let file_path = match fs::canonicalize(&filename) {
+        Ok(path) => path,
+        Err(e) => {
+            eprintln!("{} '{}' ({})", "Error:".red().bold(), filename, e);
+            std::process::exit(1);
+        }
+    };
+
+    let trash_path =
+        Path::new(trash_location).join(file_path.file_name().expect("File must have a name"));
+
+    fs_utils::move_file(&file_path, &trash_path);
+}
 
 /// Restores a file from the trash can directory
 pub fn restore_file(filename: &str, trash_location: &str, trash_info_location: &str) {
@@ -11,34 +30,12 @@ pub fn restore_file(filename: &str, trash_location: &str, trash_info_location: &
     let current_location = format!("{}/{}", trash_location, filename);
     let original_location = data::get_restore_location(filename, trash_info_location);
 
-    match cmd!("mv", &current_location, &original_location).run() {
-        Ok(_) => {
-            data::remove_line_from_data(filename, trash_info_location);
-        }
-        Err(_) => {
-            eprintln!(
-                "{} couldn't restore '{}' from trash.",
-                "Error:".red().bold(),
-                &filename
-            );
-            std::process::exit(1);
-        }
-    }
+    let current_path = Path::new(&current_location);
+    let original_path = Path::new(&original_location);
+
+    fs_utils::move_file(&current_path, &original_path);
+    data::remove_line_from_data(filename, trash_info_location);
 }
-
-/// Moves a file into the trashcan directory
-pub fn add_file_to_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
-    data::save_file_data(&filename, &trash_info_location);
-
-    match cmd!("mv", &filename, &trash_location).run() {
-        Ok(_) => {}
-        Err(_) => {
-            eprintln!("{} couldn't delete '{}'.", "Error:".red().bold(), &filename);
-            std::process::exit(1);
-        }
-    }
-}
-
 
 /// List files stored in trash directory by reading
 pub fn show_file_list(trash_info_location: &str) {

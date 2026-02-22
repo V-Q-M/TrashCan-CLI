@@ -5,8 +5,9 @@ use std::str::FromStr;
 use text_colorizer::*;
 
 mod data;
+mod fs_utils;
 mod printer;
-mod ops;
+mod trash;
 
 enum Command {
     Add,
@@ -66,8 +67,6 @@ fn main() {
     parse_args(&trash_location, &trash_info_location);
 }
 
-
-
 /*
 #[derive(Debug)]
 struct Arguments {
@@ -79,8 +78,8 @@ struct Arguments {
 fn eval_single_argument(command: Command, trash_location: &str, trash_info_location: &str) {
     match command {
         Command::Help => println!("Help"), // TODO: add help which prints all options
-        Command::Show => ops::show_file_list(&trash_info_location),
-        Command::Empty => ops::empty_trash(&trash_location, &trash_info_location),
+        Command::Show => trash::show_file_list(&trash_info_location),
+        Command::Empty => trash::empty_trash(&trash_location, &trash_info_location),
         _ => invalid_arguments(2 as usize, 1 as usize),
     }
 }
@@ -107,13 +106,23 @@ fn eval_multi_argument(
 ) {
     match command {
         Command::Add => eval_function(
-            ops::add_file_to_trash,
+            trash::add_file_to_trash,
             input,
             trash_location,
             trash_info_location,
         ),
-        Command::Restore => eval_function(ops::restore_file, input, trash_location, trash_info_location),
-        Command::Delete => eval_function(ops::delete_from_trash, input, trash_location, trash_info_location),
+        Command::Restore => eval_function(
+            trash::restore_file,
+            input,
+            trash_location,
+            trash_info_location,
+        ),
+        Command::Delete => eval_function(
+            trash::delete_from_trash,
+            input,
+            trash_location,
+            trash_info_location,
+        ),
         _ => invalid_arguments(1 as usize, input.len()),
     }
 }
