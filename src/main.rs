@@ -33,7 +33,7 @@ fn main() {
         // println!("File already exists: {}", trash_info_location);
     }
 
-    match parse_args() {
+    match parse_args(&trash_location, &trash_info_location) {
         Some(args) => match args.option.as_str() {
             // Add new arguments here
             "add" => add_file_to_trash(&args.filename, &trash_location, &trash_info_location),
@@ -136,7 +136,7 @@ struct Arguments {
     filename: String,
 }
 
-fn parse_args() -> Option<Arguments> {
+fn parse_args(trash_location: &str, trash_info_location: &str) -> Option<Arguments> {
     //TODO: Needs cleaning
     let args: Vec<String> = env::args().skip(1).collect();
 
@@ -149,6 +149,17 @@ fn parse_args() -> Option<Arguments> {
             option: args[0].clone(),
             filename: "".to_string(),
         });
+    } else if args.len() >= 2 && args[0] == "add" {
+        let mut i: usize = 1;
+        while i < args.len() {
+            let args = Arguments {
+                option: args[0].clone(),
+                filename: args[i].clone(),
+            };
+            add_file_to_trash(&args.filename, &trash_location, &trash_info_location);
+            i += 1;
+        }
+        return None;
     } else if args.len() != 2 {
         printer::print_usage();
         eprintln!(
