@@ -117,8 +117,28 @@ fn show_file_list(trash_info_location: &str) {
 }
 
 fn clear_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
-    if filename == "all" {
-        empty_trash(trash_location, trash_info_location);
+    let trash_file_location = format!("{}/{}", trash_location, filename);
+    let trash_file_path = Path::new(&trash_file_location);
+
+    if trash_file_path.exists() {
+        match fs::remove_file(trash_file_path) {
+            Ok(_) => data::remove_line_from_data(filename, trash_info_location),
+            Err(_) => {
+                eprintln!(
+                    "{} couldn't delete '{}' from trash.",
+                    "Error:".red().bold(),
+                    filename
+                );
+                std::process::exit(1);
+            }
+        }
+    } else {
+        eprintln!(
+            "{} couldn't find '{}' in the trash.",
+            "Error:".red().bold(),
+            filename
+        );
+        std::process::exit(1);
     }
 }
 
@@ -133,6 +153,9 @@ fn empty_trash(trash_location: &str, trash_info_location: &str) {
                 std::process::exit(1);
             }
         }
+    } else {
+        eprintln!("{} Trash directory doesn't exist!", "Error:".red().bold());
+        std::process::exit(1);
     }
 
     match fs::File::create(trash_info_location) {
@@ -157,7 +180,7 @@ fn eval_single_argument(command: Command, trash_location: &str, trash_info_locat
         Command::Help => println!("Help"), // TODO: add help which prints all options
         Command::Show => show_file_list(&trash_info_location),
         Command::Empty => empty_trash(&trash_location, &trash_info_location),
-        _ => invalid_arguments(2 as usize, 1 as usize)
+        _ => invalid_arguments(2 as usize, 1 as usize),
     }
 }
 
