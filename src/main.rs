@@ -11,7 +11,7 @@ mod printer;
 enum Command {
     Add,
     Restore,
-    Clear,
+    Delete,
     Empty,
     Help,
     Show,
@@ -24,7 +24,7 @@ impl FromStr for Command {
         match s {
             "add" => Ok(Command::Add),
             "restore" => Ok(Command::Restore),
-            "clear" => Ok(Command::Clear),
+            "delete" => Ok(Command::Delete),
             "empty" => Ok(Command::Empty),
             "help" => Ok(Command::Help),
             "show" => Ok(Command::Show),
@@ -116,7 +116,7 @@ fn show_file_list(trash_info_location: &str) {
     }
 }
 
-fn clear_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
+fn delete_from_trash(filename: &str, trash_location: &str, trash_info_location: &str) {
     let trash_file_location = format!("{}/{}", trash_location, filename);
     let trash_file_path = Path::new(&trash_file_location);
 
@@ -212,7 +212,7 @@ fn eval_multi_argument(
             trash_info_location,
         ),
         Command::Restore => eval_function(restore_file, input, trash_location, trash_info_location),
-        Command::Clear => eval_function(clear_trash, input, trash_location, trash_info_location),
+        Command::Delete => eval_function(delete_from_trash, input, trash_location, trash_info_location),
         _ => invalid_arguments(1 as usize, input.len()),
     }
 }
