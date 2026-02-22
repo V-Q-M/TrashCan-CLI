@@ -149,14 +149,18 @@ fn parse_args(trash_location: &str, trash_info_location: &str) -> Option<Argumen
             option: args[0].clone(),
             filename: "".to_string(),
         });
-    } else if args.len() >= 2 && args[0] == "add" {
+    } else if args.len() >= 2 && (args[0] == "add" || args[0] == "restore") {
         let mut i: usize = 1;
         while i < args.len() {
             let args = Arguments {
                 option: args[0].clone(),
                 filename: args[i].clone(),
             };
-            add_file_to_trash(&args.filename, &trash_location, &trash_info_location);
+            if &args.option == "restore"{
+                restore_file(&args.filename, &trash_location, &trash_info_location);
+            } else {
+                add_file_to_trash(&args.filename, &trash_location, &trash_info_location);
+            }
             i += 1;
         }
         return None;
